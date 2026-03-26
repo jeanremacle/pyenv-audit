@@ -6,7 +6,7 @@
 
 Built after investigating the [LiteLLM supply chain attack](https://www.reversinglabs.com/blog/teampcp-supply-chain-attack-spreads) (CVE-2026-33634, March 2026), where malicious versions of a widely used PyPI package were silently stealing credentials, SSH keys, and cloud tokens.
 
-![pyenv-audit output](assets/screenshot.png)
+![pyenv-audit demo](assets/demo.gif)
 
 ## Why this tool?
 
