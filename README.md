@@ -6,6 +6,8 @@
 
 Built after investigating the [LiteLLM supply chain attack](https://www.reversinglabs.com/blog/teampcp-supply-chain-attack-spreads) (CVE-2026-33634, March 2026), where malicious versions of a widely used PyPI package were silently stealing credentials, SSH keys, and cloud tokens.
 
+![pyenv-audit output](assets/screenshot.png)
+
 ## Why this tool?
 
 Managing multiple Python versions with pyenv means having multiple independent sets of installed packages. A vulnerability in one environment is easy to overlook. `pyenv-audit` closes that gap by scanning all environments in a single command, using globally installed tools so it never modifies your pyenv environments.

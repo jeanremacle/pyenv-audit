@@ -254,13 +254,23 @@ audit_version() {
   fi
   rm -f "$audit_stderr"
 
+  # Validate JSON structure
+  local has_deps
+  has_deps=$(echo "$raw_json" | jq 'has("dependencies") and (.dependencies != null)' 2>/dev/null || echo "false")
+  if [ "$has_deps" != "true" ]; then
+    echo -e "  ${RED}pip-audit returned unexpected JSON (missing .dependencies).${RESET}"
+    echo -e "  ${DIM}This can happen when pip-audit cannot resolve many packages.${RESET}"
+    echo -e "  ${DIM}Try running directly: pip-audit --path $site_packages${RESET}"
+    return 1
+  fi
+
   # Count total vulns
   local total_vuln_count
-  total_vuln_count=$(echo "$raw_json" | jq '[.dependencies[].vulns[]] | length')
+  total_vuln_count=$(echo "$raw_json" | jq '[(.dependencies // [])[].vulns[]?] | length')
 
   if [ "$total_vuln_count" -eq 0 ]; then
     local dep_count
-    dep_count=$(echo "$raw_json" | jq '.dependencies | length')
+    dep_count=$(echo "$raw_json" | jq '(.dependencies // []) | length')
     echo -e "  ${GREEN}No vulnerabilities found (${dep_count} packages scanned).${RESET}"
     return 0
   fi
@@ -273,7 +283,7 @@ audit_version() {
 
   # Extract vulnerable packages as a JSON array, then process each
   local vuln_pkgs
-  vuln_pkgs=$(echo "$raw_json" | jq -c '[.dependencies[] | select(.vulns | length > 0)]')
+  vuln_pkgs=$(echo "$raw_json" | jq -c '[(.dependencies // [])[] | select((.vulns // []) | length > 0)]')
   local pkg_idx=0
   local pkg_total
   pkg_total=$(echo "$vuln_pkgs" | jq 'length')
@@ -286,7 +296,7 @@ audit_version() {
 
     local vuln_idx=0
     local vuln_total
-    vuln_total=$(echo "$pkg" | jq '.vulns | length')
+    vuln_total=$(echo "$pkg" | jq '(.vulns // []) | length')
 
     while [ "$vuln_idx" -lt "$vuln_total" ]; do
       local vuln vuln_id aliases_json fix_versions
@@ -295,7 +305,8 @@ audit_version() {
       aliases_json=$(echo "$vuln" | jq -r '.aliases // [] | join(" ")')
       fix_versions=$(echo "$vuln" | jq -r '.fix_versions | if length > 0 then join(", ") else "" end')
 
-      echo -e "  ${DIM}  [$((pkg_idx+1))/$pkg_total] $pkg_name: $vuln_id...${RESET}" >&2
+      # Progress indicator: overwrite same line with \r
+      printf "\r  ${DIM}  [%d/%d] %-20s %s...${RESET}%s" "$((pkg_idx+1))" "$pkg_total" "$pkg_name:" "$vuln_id" "          " >&2
 
       # Enrich from OSV
       local osv_data severity_label score_num cvss_info
@@ -381,6 +392,8 @@ audit_version() {
     done
     pkg_idx=$((pkg_idx + 1))
   done
+  # Clear progress line
+  printf "\r%80s\r" "" >&2
 
   # ---- Phase 2: Filter by severity threshold -----------------------------------
   local min_level
@@ -429,13 +442,20 @@ audit_version() {
     pkg_vuln_count=$(jq -r "select(.pkg == \"$current_pkg\") | .vid" "$filtered_file" | wc -l | tr -d ' ')
 
     # Get highest fix version for this package
+    # fix_versions can be comma-separated (e.g., "3.12.1, 3.13.2"), so split them
     local best_fix
-    best_fix=$(jq -r "select(.pkg == \"$current_pkg\") | .fix" "$filtered_file" | grep -v '^$' | sort -V | tail -1 2>/dev/null || true)
+    best_fix=$(jq -r "select(.pkg == \"$current_pkg\") | .fix" "$filtered_file" \
+      | grep -v '^$' \
+      | tr ',' '\n' \
+      | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+      | grep -v '^$' \
+      | sort -V \
+      | tail -1 2>/dev/null || true)
 
     echo -e "  ${BOLD}--- ${current_pkg}==${pkg_ver} (${pkg_vuln_count} issue(s)) ---${RESET}"
     if [ -n "$best_fix" ]; then
       echo -e "  ${GREEN}Upgrade to: ${best_fix}${RESET}"
-      fix_commands="${fix_commands}${current_pkg}>=${best_fix} "
+      fix_commands="${fix_commands}'${current_pkg}>=${best_fix}' "
     else
       echo -e "  ${YELLOW}No fix version available${RESET}"
     fi
