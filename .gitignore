@@ -1,0 +1,17 @@
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# macOS
+.DS_Store
+._*
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test output
+*.jsonl
