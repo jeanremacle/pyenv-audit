@@ -1,0 +1,33 @@
+🚨 𝐀 𝐬𝐮𝐩𝐩𝐥𝐲 𝐜𝐡𝐚𝐢𝐧 𝐚𝐭𝐭𝐚𝐜𝐤 𝐡𝐢𝐭 𝐏𝐲𝐏𝐈 𝐥𝐚𝐬𝐭 𝐰𝐞𝐞𝐤.
+
+Malicious versions of LiteLLM (3.4M downloads/day) silently harvested SSH keys, cloud credentials, and Kubernetes secrets for ~3 hours. The vector? A .pth file that executes at Python startup -- even running pip was enough to trigger it.
+
+I shared an initial alert here:
+https://www.linkedin.com/posts/jremacle_supplychain-litellm-pypi-activity-7442277614297223168
+
+Then came the real question: 𝐡𝐨𝐰 𝐝𝐨 𝐈 𝐚𝐮𝐝𝐢𝐭 𝐀𝐋𝐋 𝐦𝐲 𝐏𝐲𝐭𝐡𝐨𝐧 𝐞𝐧𝐯𝐢𝐫𝐨𝐧𝐦𝐞𝐧𝐭𝐬 𝐚𝐭 𝐨𝐧𝐜𝐞?
+
+🔍 𝐓𝐡𝐞 𝐚𝐧𝐬𝐰𝐞𝐫 𝐝𝐞𝐩𝐞𝐧𝐝𝐬 𝐨𝐧 𝐲𝐨𝐮𝐫 𝐬𝐞𝐭𝐮𝐩.
+
+📦 𝐮𝐯 → uv audit (Rust, built-in, scans uv.lock)
+📦 𝐩𝐢𝐩 / 𝐏𝐨𝐞𝐭𝐫𝐲 / 𝐂𝐨𝐧𝐝𝐚 → grype, trivy, osv-scanner, pip-audit
+📦 𝐩𝐲𝐞𝐧𝐯 → nothing. Until now.
+
+🔧 I built 𝐩𝐲𝐞𝐧𝐯-𝐚𝐮𝐝𝐢𝐭 to close that gap.
+
+✔️ Scans every pyenv Python version in one pass
+✔️ Enriches findings with CVSS scores from the OSV database
+✔️ Groups vulnerabilities by package
+✔️ Generates upgrade commands you can review or run directly
+✔️ Zero footprint -- nothing installed into your environments
+
+📊 𝐎𝐧 𝐦𝐲 𝐬𝐞𝐭𝐮𝐩: 36 vulnerabilities across 59 packages. 8 rated HIGH or CRITICAL. Fixed in one command.
+
+🌐 Open source, MIT licensed:
+https://github.com/jeanremacle/pyenv-audit
+
+Built iteratively with 𝐂𝐥𝐚𝐮𝐝𝐞 as a coding partner -- from investigating the attack to shipping a portable tool for macOS and Linux.
+
+⚠️ Whatever your Python workflow, 𝐩𝐢𝐜𝐤 𝐚 𝐬𝐜𝐚𝐧𝐧𝐞𝐫 𝐚𝐧𝐝 𝐫𝐮𝐧 𝐢𝐭. The LiteLLM attack was caught in 3 hours. The next one might not be.
+
+#python #security #supplychain #opensource #pyenv #devsecops

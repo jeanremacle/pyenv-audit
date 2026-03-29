@@ -1,5 +1,7 @@
 # pyenv-audit
 
+![pyenv-audit](assets/pyenv-audit_cover.png)
+
 **Security audit tool for all your pyenv Python environments.**
 
 `pyenv-audit` scans every Python version managed by [pyenv](https://github.com/pyenv/pyenv) for packages with known vulnerabilities. It enriches results with severity scores and descriptions from the [OSV](https://osv.dev/) database, groups findings by package, and can generate upgrade commands to fix them.
@@ -160,7 +162,7 @@ The tool produces grouped, color-coded output:
 ## Environment variables
 
 | Variable | Description | Default |
-|----------|-------------|---------|
+| --- | --- | --- |
 | `PYENV_ROOT` | Path to your pyenv installation | `$HOME/.pyenv` |
 
 ## Limitations
