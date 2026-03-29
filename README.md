@@ -31,7 +31,7 @@ Managing multiple Python versions with pyenv means having multiple independent s
 **Required:**
 
 | Tool | Purpose | Install |
-|------|---------|---------|
+| --- | --- | --- |
 | [pip-audit](https://github.com/trailofbits/pip-audit) | Vulnerability scanning | `uv tool install pip-audit` |
 | [jq](https://jqlang.github.io/jq/) | JSON processing | `brew install jq` / `apt install jq` |
 | [curl](https://curl.se/) | OSV API queries | Usually pre-installed |
@@ -40,7 +40,7 @@ Managing multiple Python versions with pyenv means having multiple independent s
 **Optional (recommended):**
 
 | Tool | Purpose | Install |
-|------|---------|---------|
+| --- | --- | --- |
 | [cvss](https://pypi.org/project/cvss/) | Numeric CVSS score computation | `uv tool install cvss` |
 
 Without `cvss`, the tool still displays CVSS vector strings and the severity label from the OSV database, but cannot compute numeric scores (displayed as N/A).
@@ -75,14 +75,14 @@ pipx install cvss
 
 ## Usage
 
-```
+```bash
 pyenv-audit.sh [OPTIONS]
 ```
 
 ### Options
 
 | Option | Description | Default |
-|--------|-------------|---------|
+| --- | --- | --- |
 | `--severity <level>` | Minimum severity to display: `all`, `low`, `moderate`, `high`, `critical` | `high` |
 | `--version <ver>` | Audit only the specified pyenv version (e.g., `3.12.6`) | All versions |
 | `--fix` | Generate and execute `pip install --upgrade` commands for fixable vulnerabilities | Off |
@@ -119,7 +119,7 @@ pyenv-audit.sh --version 3.12.6 --fix
 
 The tool produces grouped, color-coded output:
 
-```
+```bash
 ======================================================================
   Python 3.12.6
 ======================================================================
